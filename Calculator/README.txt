@@ -1,2 +1,1 @@
-Bueno logre arreglar el problema del cursor, ahora debo revisar que me quede bien con el delete y al mismo tiempo que no haya
-problemas con el QList Input...
+Ver Como evito que el usuario le pueda dar click al Qlineedit

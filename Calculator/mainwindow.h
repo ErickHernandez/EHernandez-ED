@@ -26,6 +26,7 @@ private:
     QList<QString> signs; // signs precedence table //
 
 private slots:
+    void on_Bright_clicked();
     void on_Bleft_clicked();
     void on_pushButton_clicked();
     void on_Bdel_clicked();

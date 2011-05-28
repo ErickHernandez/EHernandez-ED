@@ -11,7 +11,9 @@ MainWindow::MainWindow(QWidget *parent) :
     this->signs.push_back("/");
     this->signs.push_back("*");
     this->signs.push_back("+");
-    this->signs.push_back("-");
+    this->signs.push_back("-");        
+    this->ui->lineEdit->setFocus();
+
 }
 
 MainWindow::~MainWindow()
@@ -32,11 +34,27 @@ void MainWindow::on_Bans_clicked()
 void MainWindow::on_Bparent1_clicked()
 {
     QString text = this->ui->lineEdit->text();
-    text.append("(");
-    this->ui->lineEdit->setText(text);
+    int temp;
 
+    this->ui->lineEdit->setCursorPosition(this->cursorPos);
+
+    if(this->ui->lineEdit->cursorPosition() == this->ui->lineEdit->text().length())
+    {
+        this->cursorPos = this->ui->lineEdit->cursorPosition();
+        qDebug()<<this->cursorPos;
+    }
+
+    temp = this->cursorPos;
+
+    text.insert(this->cursorPos,"(");
+    this->ui->lineEdit->setText(text);
     this->input.push_front("(");
+
+    if(temp != this->ui->lineEdit->cursorPosition())
+        this->cursorPos = temp+ 1;
+
     this->parenthesis += 1;
+
 }
 
 void MainWindow::on_Bparent2_clicked()
@@ -44,10 +62,25 @@ void MainWindow::on_Bparent2_clicked()
     if(this->parenthesis >0)
     {
        QString text = this->ui->lineEdit->text();
-       text.append(")");
-       this->ui->lineEdit->setText(text);
+       int temp;
 
-       this->input.push_front( ")");
+       this->ui->lineEdit->setCursorPosition(this->cursorPos);
+
+       if(this->ui->lineEdit->cursorPosition() == this->ui->lineEdit->text().length())
+       {
+           this->cursorPos = this->ui->lineEdit->cursorPosition();
+           qDebug()<<this->cursorPos;
+       }
+
+       temp = this->cursorPos;
+
+       text.insert(this->cursorPos,")");
+       this->ui->lineEdit->setText(text);
+       this->input.push_front(")");
+
+       if(temp != this->ui->lineEdit->cursorPosition())
+           this->cursorPos = temp + 1;
+
        this->parenthesis -= 1;
     }
 }
@@ -55,21 +88,30 @@ void MainWindow::on_Bparent2_clicked()
 void MainWindow::on_Bcos_clicked()
 {
     QString text = this->ui->lineEdit->text();
-    text.append("cos(");
-    this->ui->lineEdit->setText(text);
+    int temp;
 
+    this->ui->lineEdit->setCursorPosition(this->cursorPos);
+
+    if(this->ui->lineEdit->cursorPosition() == this->ui->lineEdit->text().length())
+    {
+        this->cursorPos = this->ui->lineEdit->cursorPosition();
+        qDebug()<<this->cursorPos;
+    }
+
+    temp = this->cursorPos;
+
+    text.insert(this->cursorPos,"cos(");
+    this->ui->lineEdit->setText(text);
     this->input.push_front("cos(");
+
+    if(temp != this->ui->lineEdit->cursorPosition())
+        this->cursorPos = temp+ 4;
+
     this->parenthesis += 1;
 }
 
 void MainWindow::on_Bsin_clicked()
 {
-    /*QString text = this->ui->lineEdit->text();
-    text.append("sin(");
-    this->ui->lineEdit->setText(text);
-
-    this->input.push_front("sin(");
-    this->parenthesis += 1;*/
     QString text = this->ui->lineEdit->text();
     int temp;
 
@@ -460,9 +502,9 @@ void MainWindow::on_Bpow_clicked()
 
     temp = this->cursorPos;
 
-    text.insert(this->cursorPos,"^");
+    text.insert(this->cursorPos,"*");
     this->ui->lineEdit->setText(text);
-    this->input.push_front("^");
+    this->input.push_front("*");
 
     if(temp != this->ui->lineEdit->cursorPosition())
         this->cursorPos = temp+ 1;
@@ -471,9 +513,31 @@ void MainWindow::on_Bpow_clicked()
 
 void MainWindow::on_Bdel_clicked()
 {
+    if(this->ui->lineEdit->cursorPosition() == 0)
+    {
+        this->ui->lineEdit->setFocus();
+        return;
+    }
+
     if(!this->input.isEmpty())
     {
-        this->input.pop_front();
+        if(this->ui->lineEdit->cursorPosition() != this->ui->lineEdit->text().length())
+        {
+            int pos = this->input.length()  - this->cursorPos; //Posicionandome en la pos correcta para eliminar
+            this->input.removeAt(pos);//Removiendo Dato de la Lista
+           // if(this->cursorPos != 1)
+                this->cursorPos -= 1;
+
+                if(this->cursorPos < 0)
+                    this->cursorPos = 0;
+
+                if(this->ui->lineEdit->cursorPosition() == 0)
+                    this->cursorPos = 0;
+
+                this->ui->lineEdit->setCursorPosition(this->cursorPos);
+        }
+        else
+            this->input.pop_front();//yo tenia solo esta linea
 
         QString text;
 
@@ -483,12 +547,18 @@ void MainWindow::on_Bdel_clicked()
         }
 
         this->ui->lineEdit->setText(text);
+
+        this->ui->lineEdit->setCursorPosition(this->cursorPos);
+        this->ui->lineEdit->setFocus();
     }
 }
 
 void MainWindow::on_pushButton_clicked()
 {
-    this->ui->lineEdit->setCursorPosition(3);
+    for(int i = 0; i<this->input.length(); i++)
+    {
+        qDebug()<<" "<<this->input.at(i);
+    }
     this->ui->lineEdit->setFocus();
 }
 
@@ -503,6 +573,47 @@ void MainWindow::on_Bleft_clicked()
         this->cursorPos = this->ui->lineEdit->cursorPosition();
 
         //Hacer que el "del" se mueva..
+
+        qDebug()<<this->ui->lineEdit->cursorPosition()<<" "<<this->cursorPos<<"  "<<this->input.at(this->cursorPos);
+    }
+    this->ui->lineEdit->setFocus();
+}
+
+void MainWindow::on_Bright_clicked()
+{
+    if(this->ui->lineEdit->cursorPosition() == this->ui->lineEdit->text().length())
+    {
+        this->ui->lineEdit->setFocus();
+        return;
     }
 
+    if(!this->ui->lineEdit->text().length() == 0)
+    {
+        if(this->ui->lineEdit->cursorPosition() == this->ui->lineEdit->text().length())
+        {
+            this->ui->lineEdit->cursorForward(false);
+            //qDebug()<<this->ui->lineEdit->cursorPosition();
+            this->ui->lineEdit->setCursorPosition(this->ui->lineEdit->text().length());
+            this->ui->lineEdit->setFocus();
+            return;
+        }
+
+        int pos = this->ui->lineEdit->cursorPosition();
+
+        //qDebug()<<this->cursorPos<<" "<<this->input.at(pos);
+
+//        if((this->input.at(this->cursorPos+1) == "sin(") || (this->input.at(this->cursorPos+1) == "cos("))
+//            this->ui->lineEdit->setCursorPosition(pos+3);
+//        else
+            this->ui->lineEdit->setCursorPosition(pos+1);
+
+        //qDebug()<<this->ui->lineEdit->cursorPosition()<<" "<<this->input.at(pos);
+
+        this->ui->lineEdit->setFocus();
+
+        this->cursorPos = this->ui->lineEdit->cursorPosition();
+
+
+        //Hacer que el "del" se mueva..
+    }
 }
