@@ -1,0 +1,1 @@
+Necesita el archivo SoloPalabras.txt para diccionario y testpuzzle para el puzzle.
