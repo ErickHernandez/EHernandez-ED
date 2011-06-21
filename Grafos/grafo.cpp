@@ -45,10 +45,10 @@ void Grafo::addArista(int nodo1, int nodo2, float peso)
 {
     // Si la arista ya existe, entonces no hacer nada
     if(nodo1!=nodo2)
-    {
-       this->matriz[nodo1][nodo2] = peso;
-       if(!this->_dirigido)
-           this->matriz[nodo2][nodo1] = peso;
+    {        
+            this->matriz[nodo1][nodo2] = peso;
+            if(!this->_dirigido)
+               this->matriz[nodo2][nodo1] = peso;
     }
 }
 

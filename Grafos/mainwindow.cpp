@@ -7,27 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     this->ui->dockWidget->setWindowOpacity(0.7);
-    //this->AreaRender = new RenderArea();--
-
-    // Crea la red interna, con 6 nodos, con 5 de alcance
-    // y los nodos se generan entre 600 a 500 (area )
-
-    //this->gps = new GPS(50,100.0,730,470);//--
-
-
-    // Al AreaRender siempre pasarle de parametro solo el grafo y no todo
-    // GPS para no modificar lo que ya se tenia
-    //this->AreaRender->setGrafo(gps->grafo);//--
-
-    //this->ui->gridLayout->addWidget(this->AreaRender,0,0,1,1);--
-
-    //this->CargarTabladeGrafo();
-
-    /*this->A = new float*[this->gps->grafo->getSize()];
-        for (int i=0; i<this->gps->grafo->getSize();i++)
-            this->A[i] = new float[this->gps->grafo->getSize()];*/
-
-        this->readFile();                
+    this->readFile();
 }
 
 
@@ -42,25 +22,32 @@ void MainWindow::on_pbAddArista_clicked()
 {
     if(this->ui->leInicio->text() != "" && this->ui->leFinal->text() !="" && this->ui->lePeso->text()!= "")
     {
-        this->gps->grafo->addArista(ui->leInicio->text().toInt(),
-                           ui->leFinal->text().toInt(),
-                           ui->lePeso->text().toFloat());
+        if(this->A[ui->leInicio->text().toInt()][ui->leFinal->text().toInt()]
+           == this->gps->grafo->INFINITO)
+        {
+            this->gps->grafo->addArista(ui->leInicio->text().toInt(),
+                               ui->leFinal->text().toInt(),
+                               ui->lePeso->text().toFloat());
 
-        this->AreaRender->update();
+            this->AreaRender->update();
+        }
+        this->Floyd();
     }
+
+
 }
 
 void MainWindow::Floyd()
 {
-/*    this->A = new float*[this->gps->grafo->getSize()];
-    for (int i=0; i<this->gps->grafo->getSize();i++)
-        this->A[i] = new float[this->gps->grafo->getSize()];*///lo pase al mainwindow constructor
-
     //Copiar la matriz del grafo en A (copia)
     for (int i=0;i<this->gps->grafo->getSize();i++)
     {
-        for (int j=0; j<this->gps->grafo->getSize();j++)                   
-            A[i][j] = this->gps->grafo->getPesoArista(i,j);                
+        for (int j=0; j<this->gps->grafo->getSize();j++)
+        {
+            A[i][j] = this->gps->grafo->getPesoArista(i,j);
+            P[i][j] = -1;
+        }
+
 
     }
     // Algoritmo de Floyd
@@ -71,7 +58,10 @@ void MainWindow::Floyd()
                float peso = A[i][k] + A[k][j];
                if(peso < Grafo::INFINITO)
                    if (peso < A[i][j])
+                   {
                        A[i][j] = peso ;
+                       P[i][j] = k;
+                   }
 
 
              }
@@ -165,10 +155,6 @@ void MainWindow::LoadGraph(QStringList nodos, QStringList aristas)
     this->gps = new GPS(nodos.length(),730,470);//
     this->inicializarVectors();
 
-//    this->AreaRender = new RenderArea();
-//    this->AreaRender->setGrafo(gps->grafo);//
-//    this->ui->gridLayout->addWidget(this->AreaRender,0,0,1,1);
-
     QString temp;
     QStringList n;
 
@@ -261,8 +247,7 @@ void MainWindow::inicializarVectors()
 
     for(int i = 0; i<7; i++)
     {
-        //for(int j = 0; j<cant; j++)
-        //{
+
             this->gps->week[i]["0-1"].resize(cant);
             this->gps->week[i]["1-2"].resize(cant);
             this->gps->week[i]["2-3"].resize(cant);
@@ -388,33 +373,47 @@ void MainWindow::inicializarVectors()
     }
 
     this->A.resize(cant);
+    this->P.resize(cant);
     //qDebug()<<this->gps->week[6]["23-0"][16][5]<<"soy el largo";
 
     for(int i = 0; i<cant; i++)
+    {
         this->A[i].resize(cant);
+        this->P[i].resize(cant);
+
+        for(int j = 0; j<cant; j++)
+            P[i][j] = -1;
+
+    }
 }
 
 void MainWindow::on_pbEditArista_clicked()
 {
     if(this->ui->leInicio->text() != "" && this->ui->leFinal->text() !="" && this->ui->lePeso->text() != "")
     {
-        this->gps->grafo->addArista(ui->leInicio->text().toInt(),
-                           ui->leFinal->text().toInt(),
-                           ui->lePeso->text().toFloat());
+        if(this->A[ui->leInicio->text().toInt()][ui->leFinal->text().toInt()] !=
+           this->gps->grafo->INFINITO)
+        {
 
-        this->AreaRender->update();
+            this->gps->grafo->addArista(ui->leInicio->text().toInt(),
+                             ui->leFinal->text().toInt(),
+                             ui->lePeso->text().toFloat());
+
+            this->AreaRender->update();
+            this->Floyd();
+        }
     }
 }
 
 void MainWindow::on_pbDeleteArista_clicked()
 {
-    if(this->ui->leInicio->text() != "" && this->ui->leFinal->text() !="" && this->ui->lePeso->text() != "")
+    if(this->ui->leInicio->text() != "" && this->ui->leFinal->text() != "")
     {
-        this->gps->grafo->addArista(ui->leInicio->text().toInt(),
-                           ui->leFinal->text().toInt(),
-                           this->gps->grafo->INFINITO);
+        this->gps->grafo->removeArista(this->ui->leInicio->text().toInt(),
+                                       this->ui->leFinal->text().toInt());
 
         this->AreaRender->update();
+        this->Floyd();
     }
 }
 
@@ -424,6 +423,38 @@ void MainWindow::on_pbFloyd_clicked()
 }
 
 void MainWindow::on_pbGo_clicked()
-{
+{    
+    if(this->ui->cmbStart->currentIndex() >= 0)
+    {
+        if(this->ui->cmbDestiny->currentIndex() >= 0)
+        {
+            int nodo1, nodo2;
+            nodo1 = this->ui->cmbStart->currentIndex();
+            nodo2 = this->ui->cmbDestiny->currentIndex();
+            this->ways.clear();
+            this->ui->list->clear();
+            this->ui->list->clear();
+            this->recuperarCamino(nodo1, nodo2);
 
+
+            this->ui->list->addItem(this->nodes.at(nodo1));
+
+            for(int i = 0; i<this->ways.count(); i++)
+                this->ui->list->addItem(this->nodes.at(this->ways.at(i)));
+
+            this->ui->list->addItem(this->nodes.at(nodo2));
+        }
+    }
+}
+
+void MainWindow::recuperarCamino(int nodo1, int nodo2)
+{
+    int way = this->P[nodo1][nodo2];
+
+    if(way == -1)
+        return;
+
+    this->recuperarCamino(nodo1, way);
+    this->ways.push_back(way);
+    this->recuperarCamino(way, nodo2);
 }

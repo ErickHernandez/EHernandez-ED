@@ -34,7 +34,7 @@ private:
     RenderArea *AreaRender;
     GPS *gps;
     //float **A;
-    QVector<QVector<float> > A;
+    QVector<QVector<float> > A, P;
     void CargarTabladeGrafo();
     void CargarTablaFloyd();    
     void Floyd();
@@ -45,6 +45,8 @@ private:
     QList<QString> nodes;
     int NodeIndx(QString etiq);
     void inicializarVectors();
+    void recuperarCamino(int nodo1, int nodo2);
+    QList<int> ways;
 
 private slots:            
     void on_pbGo_clicked();
