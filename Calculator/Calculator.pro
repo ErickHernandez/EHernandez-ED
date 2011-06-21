@@ -1,6 +1,6 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2011-04-30T02:55:56
+# Project created by QtCreator 2011-06-14T14:57:28
 #
 #-------------------------------------------------
 
@@ -11,11 +11,10 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp
+        mainwindow.cpp \
+    logic.cpp
 
-HEADERS  += mainwindow.h
+HEADERS  += mainwindow.h \
+    logic.h
 
 FORMS    += mainwindow.ui
-
-OTHER_FILES += \
-    README.txt
